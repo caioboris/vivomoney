@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity(name = "customers")
@@ -24,8 +23,10 @@ public class Customer {
 
     @Column(unique = true)
     private String document;
+
     private String name;
-    private LocalDate dateOfBirth;
+
+    private LocalDate birthDate;
 
     @OneToMany(mappedBy = "customer")
     private List<Offer> offers;

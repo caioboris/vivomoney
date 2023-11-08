@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity(name = "offers")
 @Table(name = "tb_offers")
@@ -20,8 +21,13 @@ public class Offer {
 
     private BigDecimal tax;
 
-    private BigDecimal installments;
+    private Long amount;
+
+    private Long installments;
 
     @ManyToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    private LocalDateTime expirationDate;
 }
