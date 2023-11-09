@@ -1,6 +1,7 @@
 package com.vivomoney.domain.offer;
 
 import com.vivomoney.domain.customer.Customer;
+import com.vivomoney.dtos.OfferDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,4 +31,11 @@ public class Offer {
     private Customer customer;
 
     private LocalDateTime expirationDate;
+
+    public Offer(OfferDTO offerDTO){
+        this.tax = offerDTO.taxa_mensal();
+        this.amount = offerDTO.valor();
+        this.installments = offerDTO.numero_parcelas();
+        this.expirationDate = LocalDateTime.now().plusDays(30);
+    }
 }
