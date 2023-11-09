@@ -2,6 +2,7 @@ package com.vivomoney.domain.customer;
 
 
 import com.vivomoney.domain.offer.Offer;
+import com.vivomoney.dtos.CustomerDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,5 +31,11 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer")
     private List<Offer> offers;
+
+    public Customer(CustomerDTO customerDTO){
+        this.document = customerDTO.cpf();
+        this.name = customerDTO.nome();
+        this.birthDate = customerDTO.data_de_nascimento();
+    }
 
 }
