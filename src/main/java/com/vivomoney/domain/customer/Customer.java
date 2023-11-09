@@ -1,6 +1,7 @@
 package com.vivomoney.domain.customer;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.vivomoney.domain.offer.Offer;
 import com.vivomoney.dtos.CustomerDTO;
 import jakarta.persistence.*;
@@ -30,6 +31,7 @@ public class Customer {
     private LocalDate birthDate;
 
     @OneToMany(mappedBy = "customer")
+    @JsonBackReference
     private List<Offer> offers;
 
     public Customer(CustomerDTO customerDTO){
