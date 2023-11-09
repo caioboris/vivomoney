@@ -3,44 +3,40 @@ package com.vivomoney.controllers;
 import com.vivomoney.domain.customer.Customer;
 import com.vivomoney.domain.offer.Offer;
 import com.vivomoney.dtos.OfferDTO;
-import com.vivomoney.repositories.CustomerRepository;
-import com.vivomoney.repositories.OfferRepository;
+import com.vivomoney.services.OfferService;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/offer")
 public class OfferController {
 
     @Autowired
-    private OfferRepository offerRepository;
-    @Autowired
-    private CustomerRepository customerRepository;
+    private OfferService offerService;
+
+    @GetMapping("/all")
+    public ResponseEntity getAllOffers(){
+        return ResponseEntity.ok(offerService.getAllOffers());
+    }
 
     @GetMapping
-    public ResponseEntity getAllOffers(){
-        var allOffers = offerRepository.findAll();
-        return ResponseEntity.ok(allOffers);
+    public ResponseEntity getOffersByCustomerDocument(@RequestParam(value = "cpf") String document,
+                                                      @RequestParam(value = "vigente", defaultValue = "false") Boolean current){
+
+        List<Offer> offers = offerService.getOffersByCustomerDocument(document, current);
+        return ResponseEntity.ok(offers);
     }
 
     @PostMapping
     public ResponseEntity createOffer(@RequestBody @Validated OfferDTO data,
-                                      @RequestHeader(value = "customer_document") String customerDocument) throws Exception {
+                                      @RequestHeader(value = "customer_id") String customerDocument){
 
-        if(StringUtils.isEmpty(customerDocument)){
-            throw new IllegalArgumentException("Insira um CPF válido.");
-        }
-
-        Customer customer = this.customerRepository.findCustomerByDocument(customerDocument)
-                .orElseThrow(() -> new Exception("Cliente não encontrado"));
-
-        Offer offer = new Offer(data, customer);
-        offerRepository.save(offer);
-
-        return ResponseEntity.ok(offer);
+        return ResponseEntity.ok(offerService.createOffer(data,customerDocument));
     }
 
 

@@ -3,6 +3,7 @@ package com.vivomoney.controllers;
 import com.vivomoney.domain.customer.Customer;
 import com.vivomoney.dtos.CustomerDTO;
 import com.vivomoney.repositories.CustomerRepository;
+import com.vivomoney.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,24 +14,22 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerService customerService;
 
     @GetMapping
     public ResponseEntity getAllCustomers(){
-        var allCustomers = customerRepository.findAll();
-        return ResponseEntity.ok(allCustomers);
+        return ResponseEntity.ok(customerService.getAllCustomers());
     }
 
     @PostMapping
-    public ResponseEntity postCustomer(@RequestBody @Validated CustomerDTO data){
-        Customer customer = new Customer(data);
-        customerRepository.save(customer);
-        return ResponseEntity.ok(data);
+    public ResponseEntity postCustomer(@RequestBody CustomerDTO data){
+        var customer = customerService.createCustomer(data);
+        return ResponseEntity.ok(customer);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity deleteCustomer(@PathVariable Long id){
-        customerRepository.deleteById(id);
+        customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
     }
 }
