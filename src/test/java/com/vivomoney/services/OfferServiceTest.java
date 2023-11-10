@@ -21,7 +21,11 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -54,7 +58,9 @@ class OfferServiceTest {
         OfferDTO offer = new OfferDTO(7.85, 10000L, 18L);
 
         when(customerRepository.findCustomerByDocument(document)).thenReturn(Optional.of(customer));
-        verify(offerService, times(1)).createOffer(offer, document);
+        offerService.createOffer(offer, document);
+
+        verify(offerService, times(1)).createOffer(any(OfferDTO.class), eq(document));
     }
 
     @Test
@@ -65,9 +71,37 @@ class OfferServiceTest {
         when(customerRepository.findCustomerByDocument(document)).thenReturn(Optional.of(new Customer()));
 
         EntityNotFoundException notFound = Assertions.assertThrows(EntityNotFoundException.class, () ->{
-            customerRepository.findCustomerByDocument("");
+            customerRepository.findCustomerByDocument(document);
         });
+
+        verify(customerRepository, times(1)).findCustomerByDocument(eq(document));
     }
 
+    @Test
+    void getOffersByCustomerDocumentSuccess() {
+        String document = "12331241322";
+        Boolean current = true;
+
+        Customer customer = new Customer(new CustomerDTO(document, "Caio Boris", LocalDate.of(2003, 1, 24)));
+        when(customerRepository.findCustomerByDocument(document)).thenReturn(Optional.of(customer));
+
+        List<Offer> offers = customer.getOffers();
+        List<Offer> currentOffers = customer.getOffers()
+                .stream().filter(x -> x.getExpirationDate()
+                        .isBefore(LocalDateTime.now()))
+                .collect(Collectors.toList());
+
+        when(customer.getOffers()).thenReturn(offers);
+
+        List<Offer> result = offerService.getOffersByCustomerDocument(document, current);
+        verify(customerRepository, times(1)).findCustomerByDocument(eq(document));
+
+        if (current) {
+            assertEquals(1, result.size());
+            assertEquals(currentOffers, result.get(0));
+        } else {
+            assertEquals(offers, result);
+        }
+    }
 
 }
